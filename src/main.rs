@@ -21,7 +21,7 @@ struct Table{
 
 #[derive(Clone)]
 struct Cell{
-   status : (bool,char) // bool = is_empty , String = la figure dans la case : _ si empty , X ou O sinon
+   status : (bool,char) // bool = is_filled , String = la figure dans la case : _ si empty , X ou O sinon
 }
 
 #[derive(Clone)]
@@ -89,20 +89,36 @@ impl Grid{
 
     fn check_if_finished(&mut self,index : usize)->u32{
         let mut is_finished = 0;
-        let current_symbol:char = self.cells[index].status.1.clone();
-        let to_check = &self.check_table.return_value_to_check(index).clone();
-        for i in 0..to_check.len(){
-            let current_tuple = to_check[i];
-            let symbol_cell_1:char = self.cells[current_tuple.0].status.1.clone();
-            let symbol_cell_2:char = self.cells[current_tuple.1].status.1.clone();
+        if !self.handle_tie() {
+            let current_symbol: char = self.cells[index].status.1.clone();
+            let to_check = &self.check_table.return_value_to_check(index).clone();
+            for i in 0..to_check.len() {
+                let current_tuple = to_check[i];
+                let symbol_cell_1: char = self.cells[current_tuple.0].status.1.clone();
+                let symbol_cell_2: char = self.cells[current_tuple.1].status.1.clone();
 
-            if current_symbol.eq(&symbol_cell_1) && current_symbol.eq(&symbol_cell_2){
-                is_finished = 1;
-                break;
+                if current_symbol.eq(&symbol_cell_1) && current_symbol.eq(&symbol_cell_2) {
+                    is_finished = 1;
+                    break;
+                }
             }
+        }
+        else {
+            is_finished = 2;
         }
         is_finished
 
+    }
+
+    fn handle_tie(&self)->bool{
+        let mut as_a_tie = true;
+        for i in 0..self.cells.len(){
+            if self.cells[i].status.0 == false{
+                as_a_tie = false;
+                break;
+            }
+        }
+        as_a_tie
     }
 
 
@@ -131,16 +147,20 @@ impl Grid{
                     println!("J1 win")
                 }
                 break;
+            }else if self.check_if_finished(index_chosen_cell) == 2 {
+                self.print_grid();
+                println!("TIE !");
+                break;
             }
             self.print_grid()
         }
     }
 
     fn handle_coordinate(&self)->(usize,usize){
-        println!("choose your row");
-        let row = input!().parse::<u32>().unwrap() as usize;
-        println!("choose your column");
-        let column = input!().parse::<u32>().unwrap() as usize;
+        println!("choose your row 1-3");
+        let row = input!().parse::<u32>().unwrap() as usize -1;
+        println!("choose your column 1-3");
+        let column = input!().parse::<u32>().unwrap() as usize -1;
         println!("---------------");
         (row,column)
     }
