@@ -44,7 +44,7 @@ impl Grid{
             filled_cells.push(this_cell);
 
         }
-        Grid{size: size,cells:filled_cells, is_j1play: true,check_table}
+        Grid{size,cells:filled_cells, is_j1play: true,check_table}
     }
 
     fn print_grid(&self){
@@ -126,26 +126,16 @@ impl Grid{
         let mut symbol : char ;
         self.print_grid();
         loop {
-            if self.is_j1play {
-                println!("J1 turn you play X");
-                symbol = 'X';
-            }
-            else {
-                println!("J2 turn you play O");
-                symbol = 'O'
-            }
+
+            println!("{}", if self.is_j1play{"J1's turn, you play X"}else{"J2's turn, you play O"});
+            symbol = match self.is_j1play {true =>'X', _=>'O'  };
 
             let chosen_cell = self.handle_coordinate();
             let index_chosen_cell = self.index(chosen_cell.0,chosen_cell.1);
             self.next_round(index_chosen_cell,symbol);
             if self.check_if_finished(index_chosen_cell) == 1{
                 self.print_grid();
-                if self.is_j1play {
-                    println!("J2 win")
-                }
-                else {
-                    println!("J1 win")
-                }
+                println!("{}", if self.is_j1play {"J2 win"}else{"J1 win"});
                 break;
             }else if self.check_if_finished(index_chosen_cell) == 2 {
                 self.print_grid();
@@ -161,7 +151,7 @@ impl Grid{
         let row = input!().parse::<u32>().unwrap() as usize -1;
         println!("choose your column 1-3");
         let column = input!().parse::<u32>().unwrap() as usize -1;
-        println!("---------------");
+        println!("-------------");
         (row,column)
     }
 
@@ -233,7 +223,7 @@ impl Table {
         let eight = Case{index:8, to_check: eight_case };
         cases.push(eight);
 
-        Table{ cases: cases}
+        Table{ cases}
     }
 
     fn return_value_to_check(&mut self, value:usize)->Vec<(usize,usize)>{
@@ -242,9 +232,8 @@ impl Table {
         if value>=0 && value <=8{
              let current_cases : &Case= &cloned_cases[value];
              let possible_values = &current_cases.to_check;
-             for i in 0..possible_values.len(){
-                 to_return.push(possible_values[i]);
-             }
+             to_return = (*possible_values.clone()).to_owned()
+
         }
         else {
             panic!("selectionner une valeur adequat")
